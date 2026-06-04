@@ -1,8 +1,6 @@
-from flask import Flask, request, jsonify
+import streamlit as st
 import pandas as pd
 from sklearn.tree import DecisionTreeClassifier
-
-app = Flask(__name__)
 
 # Load Dataset
 data = pd.read_csv("student_data.csv")
@@ -15,21 +13,18 @@ y = data['Result']
 model = DecisionTreeClassifier()
 model.fit(X, y)
 
-@app.route('/')
-def home():
-    return "Student Performance Prediction System"
+st.title("🎓 Student Performance Prediction System")
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    study_hours = float(request.json['StudyHours'])
-    attendance = float(request.json['Attendance'])
-    previous_score = float(request.json['PreviousScore'])
+st.write("Enter student details:")
 
+study_hours = st.number_input("Study Hours", min_value=0.0)
+attendance = st.number_input("Attendance (%)", min_value=0.0, max_value=100.0)
+previous_score = st.number_input("Previous Score", min_value=0.0, max_value=100.0)
+
+if st.button("Predict Result"):
     prediction = model.predict(
         [[study_hours, attendance, previous_score]]
     )[0]
 
-    return jsonify({"Prediction": prediction})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    st.success(f"Predicted Result: {prediction}")
+    
